@@ -3,9 +3,9 @@ s = Server.default;
 ~onbela = true;
 
 if (~onbela) {
-	s.options.numAnalogInChannels = 4;
-	s.options.numAnalogOutChannels = 4;
-	s.options.numDigitalChannels = 0;
+	s.options.numAnalogInChannels = 8;
+	s.options.numAnalogOutChannels = 8;
+	s.options.numDigitalChannels = 16;
 	s.options.blockSize = 16;
 	s.options.numInputBusChannels = 2;
 	s.options.numOutputBusChannels = 2;
