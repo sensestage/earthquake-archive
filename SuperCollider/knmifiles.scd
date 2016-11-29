@@ -5,8 +5,8 @@
 
 ** useful information: coordinates of measurement locations
 ** files have an offset - should be centered -> fixed
-** files have to be normalized
-** files are not equal length
+** files have to be normalized -> fixed
+** files are not equal length -> fixed
 
 
 * earthquakes could start at different places on the body, based on the epicentre?
@@ -72,6 +72,8 @@ s.freeAll;
 
 ~quakebuffers.collect{ |it| it.numFrames }
 
+
+~quakes.collect{ |it| ( it +/+ "wav_norm/*.wav").pathMatch.size }
 
 ~quakes.collect{ |it| ( it +/+ "wav_norm/*.wav").pathMatch.size }
 ~quakewaves = (~quakes[0] +/+ "wav_norm/*.wav").pathMatch;

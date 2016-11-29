@@ -8,13 +8,21 @@ s.startAliveThread;
 
 
 (
-SynthDef("AOut",{ arg out=0;
-	Out.ar( out, SinOsc.ar( 500, 0, 0.4*EnvGen.kr( Env.perc, Impulse.kr(10), timeScale: 0.1 ) ) );
+SynthDef("AOut",{ arg out=0, freq=100, rate=10, dur=0.1, amp=0.4;
+	Out.ar( out, SinOsc.ar( freq, 0, amp*EnvGen.kr( Env.perc, Impulse.kr(rate), timeScale: dur ) ) );
 }).send(s);
 );
 
 s.sync;
 a = Synth.new("AOut", [\out,4], target: s).postln;
+
+a.set( \rate, 20, \amp, 1, \out, 7) // sternum
+a.set( \rate, 20, \amp, 1, \out, 4) // top back
+a.set( \rate, 20, \amp, 1, \out, 6) // left shoulder
+a.set( \rate, 20, \amp, 1, \out, 5) // right shoulder
+a.set( \rate, 20, \amp, 1, \out, 2) // left hip
+a.set( \rate, 20, \amp, 1, \out, 3) // right hip
+
 a.free;
 b = Synth.new("AOut", [\out,7], target: s).postln;
 b.free;

@@ -22,7 +22,6 @@
 		~soundfile2 = SoundFile.new.headerFormat_( "WAV" ).sampleFormat_( ~soundfile.sampleFormat ).numChannels_( ~soundfile.numChannels ).sampleRate_( ~soundfile.sampleRate );
 		~soundfile2.openWrite( (it +/+ "wav_offset" +/+ PathName( jt ).fileName ) );
 		~soundfile2.writeData( ~snddata2 );
-		// ~soundfile2.writeHeader;
 		~soundfile2.close;
 		~soundfile.close;
 	};
@@ -61,6 +60,22 @@
 	};
 
 	~soundfiles.do{ |it| it.close };
-	// SoundFile.groupNormalize( ~waves, ( it +/+ "wav_norm" ), "WAV", "float", 1 );
 };
-)
+);
+
+
+(
+// find peaks
+~quakePeaks = ~quakes.collect{ |it|
+	~waves = ( it +/+ "wav_eqsize/*.wav").pathMatch;
+	~soundfiles = ~waves.collect{ |it| SoundFile.new( it ) };
+	~soundfiles.do{ |it| it.openRead };
+
+	~soundPeaks = ~soundfiles.collect{ |jt| jt.channelPeaks.unbubble};
+
+	~soundfiles.do{ |it| it.close };
+	~soundPeaks;
+};
+);
+
+~quakePeaks[1].plot
