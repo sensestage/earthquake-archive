@@ -1,3 +1,8 @@
+# Future Features:
+# Normalization and DC offset removal in the converted wavefiles.
+# Zero-buffering at the end of files to make all equal length.
+
+
 import sys
 import os
 import obspy
