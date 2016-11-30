@@ -1,3 +1,9 @@
+# Useful resources:
+# https://docs.obspy.org/packages/obspy.clients.fdsn.html#module-obspy.clients.fdsn
+# https://www.fdsn.org/webservices/
+
+
+
 import sys
 import os
 import obspy
