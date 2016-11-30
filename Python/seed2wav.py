@@ -32,6 +32,15 @@ def checkargs():
         if srate != 'native':
             error("Sample rate must be an integer value or native for native sampling rate.")
 
+def writewav(trace, sr, dest):
+    eventtime = trace.stats.starttime.strftime("%Y-%m-%d_%H-%M-%S_")
+    stationcode = "%s_%s_%s" % (trace.stats.network, trace.stats.station, trace.stats.channel)
+    path = os.path.join(destdir, eventtime + stationcode + '.wav')
+    if sr == 'native':
+        sr = tr.stats.sampling_rate
+    tr.write(path, format='WAV', framerate=sr)
+    print "Writing", path
+
 
 if __name__ == '__main__':
     checkargs()
@@ -51,12 +60,7 @@ if __name__ == '__main__':
                 error("Bad directory name %s" % destdir)
 
         for tr in st:
-            path = os.path.join(destdir, filename + '_' + tr.get_id() + '.wav')
-            sr = srate
-            if sr == 'native':
-                sr = tr.stats.sampling_rate
-            tr.write(path, format='WAV', framerate=sr)
-            print "Writing", path
+            writewav(tr, srate, destdir)
         print "...Done"
 
     except IOError:
