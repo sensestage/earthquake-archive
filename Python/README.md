@@ -18,6 +18,17 @@ Extract useful earthquake and station data from a mseed file
     conda install obspy
 
 
+Then miniconda replaces your default python (if you add it to the path) and you can start/stop scripts as usual with python seed2wav.py .....
+
+*for images / maps*
+
+    conda install pil
+    conda install basemap
+    conda install cartopy
+
+    conda install -c conda-forge basemap-data-hires
+
+    
 ### dependencies
 
 ## https://github.com/obspy/obspy/

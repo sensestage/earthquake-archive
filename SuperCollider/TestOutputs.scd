@@ -16,6 +16,8 @@ SynthDef("AOut",{ arg out=0, freq=100, rate=10, dur=0.1, amp=0.4;
 s.sync;
 a = Synth.new("AOut", [\out,4], target: s).postln;
 
+[7,4,6,5,2,3]
+
 a.set( \rate, 20, \amp, 1, \out, 7) // sternum
 a.set( \rate, 20, \amp, 1, \out, 4) // top back
 a.set( \rate, 20, \amp, 1, \out, 6) // left shoulder
