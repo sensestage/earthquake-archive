@@ -21,10 +21,24 @@
 	// it.readAllPitchTraces; // only needed for processing
 	// it.writePitchTraces;   // processing
 	it.matchWavesWithStations;
+	it.filterStations; // take out stations for which there are no waveforms
 
 	it.stationsSortedByDistance.postln;
 };
 );
+
+~quakes[0].stationInfo.keys
+
+~quakes.do{ |it| it.stationsSortedByDistance.postln; };
+
+// 4 tot 6 stations:
+// mapping:
+// 4: stern + upper back, left shoulder, right shoulder, left + right hip
+// 5: stern + upper back, left shoulder, right shoulder, left, right hip
+// 6: stern, upper back, left shoulder, right shoulder, left, right hip
+
+~selectedStations = ~quakes[0].stationInfo.select{ |it| it.waves.size > 0 };
+~selectedStations.keys
 
 // ~quakes[0].stationInfo.at( ~quakes[0].stationsSortedByDistance[0] ).waves.size.postln;
 // ~quakes[0].stationInfo.at( ~quakes[0].stationsSortedByDistance[0] ).readPitchTraces

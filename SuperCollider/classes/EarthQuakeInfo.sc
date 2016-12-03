@@ -92,6 +92,10 @@ EarthQuake{
 		stationInfo.do{ |it| it.readPitchTraces; };
 	}
 
+	filterStations{
+		stationInfo = stationInfo.select{ |it| it.waves.size > 0 };
+	}
+
 	stationsSortedByDistance{
 		^stationInfo.asArray.sort( { |a,b| a.distance < b.distance } ).collect{ |it| it.fileName.asSymbol };
 	}
