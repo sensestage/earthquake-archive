@@ -26,7 +26,4 @@ s.waitForBoot({
 	s.sync;
 	(~mypath +/+ "plumbing.scd").load;
 
-
-
-
 });
