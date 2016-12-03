@@ -6,7 +6,7 @@ SynthDef( \modeSelector, { |out,inbus, nodeid, outbus|
 	toggle = ToggleFF.kr( mode );
 	Pause.kr( toggle, nodeid );
 	SendReply.kr( Changed.kr( mode ), '/changeMode', mode ); // useful for testing
-	SendReply.kr( Changed.kr( mode ), '/toggleMode', toggle ); // use for earthquake playing
+	SendReply.kr( Changed.kr( toggle ), '/toggleMode', toggle ); // use for earthquake playing
 	Out.kr( outbus, Delay1.kr( Changed.kr( toggle ) ) );
 }).send(s);
 );
@@ -14,13 +14,13 @@ SynthDef( \modeSelector, { |out,inbus, nodeid, outbus|
 (
 SynthDef( \testSignal,{ arg freq=100, rate=10, stepRate=0.5, dur=0.1, amp=0.5, doneAction = 1, resetbus=0;
 	var stepTrigger = Impulse.kr( stepRate );
-	var endCount = PulseCount.kr( stepTrigger );
+	//var endCount = PulseCount.kr( stepTrigger );
 	var trigger = Impulse.kr(rate);
 	var signal = SinOsc.ar( freq, 0, amp*EnvGen.kr( Env.perc, trigger, timeScale: dur ) );
 	var outputStepper = Stepper.kr( stepTrigger, In.kr( resetbus ), 2, 7 ); // loops
-	var gate = BinaryOpUGen( '<', endCount, 30 );
-	var env = EnvGen.kr( Env.cutoff, gate, doneAction: doneAction );
-	Out.ar( outputStepper, signal*env );
+	//var gate = BinaryOpUGen( '<', endCount, 30 );
+	//var env = EnvGen.kr( Env.cutoff, gate, doneAction: doneAction );
+	Out.ar( outputStepper, signal );
 }).send(s);
 );
 
