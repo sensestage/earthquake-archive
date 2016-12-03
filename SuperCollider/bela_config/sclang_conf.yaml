@@ -1,0 +1,5 @@
+includePaths:
+    - /root/earthquakes/SuperCollider/classes
+excludePaths:
+    []
+postInlineWarnings: false
