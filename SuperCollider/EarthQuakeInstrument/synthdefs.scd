@@ -24,10 +24,21 @@ SynthDef( \testSignal,{ arg freq=100, rate=10, stepRate=0.5, dur=0.1, amp=0.5, d
 }).send(s);
 );
 
+/*
 (
-SynthDef( \quakeSelector, { |out,inbus|
-	var quake = DigitalIn.kr( [2, 3, 4, 5], [1,2,4,8] ).sum.poll(1); // on bela
+SynthDef( \quakeSelector, { |out|
+	var quake = DigitalIn.kr( [2, 3, 4, 5], [1,2,4,8] ).sum; // on bela
 	SendReply.kr( Changed.kr( quake ), '/changeQuake', quake );
+}).send(s);
+);
+*/
+
+(
+SynthDef( \quakeSelector, { |maxTime=5|
+	var quake = DigitalIn.kr( [2, 3, 4, 5], [1,2,4,8] ).sum; // on bela
+	var timeSinceChange = Sweep.kr( Changed.kr( quake ), 1 );
+	var trigSelect = BinaryOpUGen( '>', timeSinceChange, maxTime );
+	SendReply.kr( trigSelect, '/changeQuake', quake );
 }).send(s);
 );
 
