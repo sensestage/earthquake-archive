@@ -62,8 +62,6 @@ s.bufferAllocator.debug
 };
 );
 
-(
-);
 
 // function to play an earthquake
 (
@@ -73,6 +71,10 @@ s.bufferAllocator.debug
 	}
 };
 );
+
+s.sendMsg( "/g_dumpTree", 0, 1 );
+
+
 (
 ~stopQuake = { |qid|
 	~quakes[ qid ].stationInfo.do{ |it| it.stopOne };
