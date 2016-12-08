@@ -96,7 +96,8 @@ if __name__ == '__main__':
         read_station_info( spath )
 
         #print(st)
-      
+        print quake_info
+     
         min_eventtime = None
         max_eventtime = None
         for tr in st:            
@@ -111,7 +112,7 @@ if __name__ == '__main__':
             elif max_eventtime < endeventtime:
                 max_eventtime = endeventtime
 
-            #print tr.stats
+            print tr.stats
 
             #print type( eventtime )
             ## get coordinates from inventory and add to waveform trace
@@ -157,7 +158,8 @@ if __name__ == '__main__':
             size=(920, 860),
             dpi=96,
             #color='#01689B',
-            color='channel',
+            #color='channel',
+            color='station',
             linewidth=0.5,
             grid_linewidth=0.25,
             time_down=True,
