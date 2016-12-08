@@ -1,5 +1,6 @@
 (
-~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
+// ~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
+~basefilepath = "/root/earthquakes/Python/Test-Data/";
 ~quakePaths = (~basefilepath +/+ "*").pathMatch;
 ~quakes = ~quakePaths.collect{ |it| EarthQuake.new( it ) };
 );

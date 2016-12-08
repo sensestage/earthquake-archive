@@ -24,11 +24,11 @@ s.options.maxLogins = 5; // multiple logins ensures that you can connect to/from
 s.waitForBoot({
 
 	(~mypath +/+ "synthdefs.scd").load;
-	(~mypath +/+ "oscdefs.scd").load;
 	s.sync;
 	(~mypath +/+ "plumbing.scd").load;
 	s.sync;
 	(~mypath +/+ "earthquake_waves.scd").load;
+	(~mypath +/+ "oscdefs.scd").load;
 
 
 });

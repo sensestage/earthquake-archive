@@ -9,6 +9,8 @@
 }
 );
 
+~quakes[0].dump;
+
 // function to play an earthquake
 (
 ~playQuake = { |qid|
