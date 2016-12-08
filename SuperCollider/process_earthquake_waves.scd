@@ -1,7 +1,10 @@
 // for all quakes
 
 (
+~spOrder = [7,4,6,5,2,3];
+
 ~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
+~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";
 
 ~quakePaths = (~basefilepath +/+ "*").pathMatch;
 
@@ -20,14 +23,121 @@
 	it.matchWavesWithStations;
 	// it.readAllPitchTraces; // only needed for processing
 	// it.writePitchTraces;   // processing
+
 	it.matchWavesWithStations;
 	it.filterStations; // take out stations for which there are no waveforms
+
+	// it.analyzeAmplitudes;  // processing
+	it.readAmplitudes;
 
 	it.stationsSortedByDistance.postln;
 };
 );
 
-~quakes[0].stationInfo.keys
+
+// s.options.numOutputBusChannels = 8;
+// s.boot;
+
+ServerOptions
+
+s.bufferAllocator.debug
+
+// ~quakes.do{ |it| it.readAllBuffers(s, ~basefilepath, ~basefilepathRemote ) }; // optional arguments: basepath, remotepath
+
+(// read buffers:
+~quakes.do{ |jt,j|
+	jt.stationsSortedByDistance.do{ |it,i|
+		var indexOfAmp = jt.stationInfo.at( it ).waveAmplitudes.collect{ |it| it[1] }.maxIndex;
+		[ j, i ].postln;
+		jt.stationInfo.at( it ).loadBuffer( s, indexOfAmp, ~basefilepath, ~basefilepathRemote );
+		jt.stationInfo.at( it ).loadPitchBuffer( s, indexOfAmp, ~basefilepath, ~basefilepathRemote );
+	};
+}
+);
+
+(
+// free buffers
+~quakes.do{ |jt,j|
+	jt.stationInfo.do{ |st| st.freeBuffer; st.freePitchBuffer };
+};
+);
+
+(
+);
+
+// function to play an earthquake
+(
+~playQuake = { |qid|
+	~quakes[ qid ].stationsSortedByDistance.do{ |it,i|
+		~quakes[ qid ].stationInfo.at( it ).playOne( s, ~spOrder[i], \waveplayer, \pulseenv );
+	}
+};
+);
+(
+~stopQuake = { |qid|
+	~quakes[ qid ].stationInfo.do{ |it| it.stopOne };
+}
+);
+
+~playQuake.value( 0 );
+~stopQuake.value( 0 );
+
+~playQuake.value( 1 );
+~stopQuake.value( 1 );
+
+~playQuake.value( 2 );
+~stopQuake.value( 2 );
+
+~playQuake.value( 3 );
+~stopQuake.value( 3 );
+
+~playQuake.value( 4 );
+~stopQuake.value( 4 );
+
+~playQuake.value( 5 );
+~stopQuake.value( 5 );
+
+~playQuake.value( 6 );
+~stopQuake.value( 6 );
+
+~playQuake.value( 7 );
+~stopQuake.value( 7 );
+
+~playQuake.value( 8 );
+~stopQuake.value( 8 );
+
+~playQuake.value( 9 );
+~stopQuake.value( 9 );
+
+~playQuake.value( 10 );
+~stopQuake.value( 10 );
+
+~playQuake.value( 11 );
+~stopQuake.value( 11 );
+
+~playQuake.value( 12 );
+~stopQuake.value( 12 );
+
+
+~index = ~quakes[0].stationInfo.[ 'NL_HWF4_HH' ].waveAmplitudes.collect{ |it| it[1] }.maxIndex
+
+~quakes[0].stationInfo[ 'NL_HWF4_HH' ].playOne( s, 0, ~index, \waveplayer, \pulseenv );
+~quakes[0].stationInfo[ 'NL_HWF4_HH' ].stopOne;
+
+~quakes[0].quakeInfo.dump
+wavefilenames
+
+~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waveAmplitudes
+~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves
+.waves.do{ |it| ~sndfile = SoundFile.new; ~sndfile.openRead( it ); ~sndfile.channelPeaks.postln; ~sndfile.close; }
+
+~quakes[0].stationInfo.collect{ |st| st.waves.collect{ |it| ~sndfile = SoundFile.new; ~sndfile.openRead( it ); ~peaks = ~sndfile.channelPeaks; ~sndfile.close; ~peaks } }.do{ |jt| jt.size.postln; }
+
+~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves[0] < ~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves[1]
+~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves[1] < ~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves[2]
+~quakes[0].stationInfo[ 'NL_WDB4_HH' ].waves[2]
+
+~quakes[0].stationInfo.do{ |it| it.waves.collect{ |jt| jt.contains( "HHN" ) }.postln }
 
 ~quakes.do{ |it| it.stationsSortedByDistance.postln; };
 

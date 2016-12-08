@@ -71,6 +71,14 @@ EarthQuake{
 		}
 	}
 
+	analyzeAmplitudes{
+		stationInfo.do{ |it| it.analyzeAmplitudes( basePath ) };
+	}
+
+	readAmplitudes{
+		stationInfo.do{ |it| it.readAmplitudes( basePath ) };
+	}
+
 	writePitchTraces{ |filterMax=150|
 		if ( File.exists( basePath +/+ "wav_pitchtrace" ) ){
 			("Folder for wave files of pitch traces already exists!" + basePath +/+ "wav_pitchtrace" ).warn;
@@ -99,6 +107,16 @@ EarthQuake{
 	stationsSortedByDistance{
 		^stationInfo.asArray.sort( { |a,b| a.distance < b.distance } ).collect{ |it| it.fileName.asSymbol };
 	}
+
+	readAllBuffers{ |server, basepath, remotepath|
+		stationInfo.do{ |stat|
+			if ( stat.waves.size > 0 ){
+				stat.loadBuffers( server, basepath, remotepath );
+				stat.loadPitchBuffers( server, basepath, remotepath );
+			};
+		};
+	}
+
 }
 
 EarthQuakeInfo{
@@ -113,8 +131,8 @@ EarthQuakeInfo{
 	read{ |path|
 		var fileinfo = SemiColonFileReader.read( path +/+ "quake_info.csv" , true );
 		date = fileinfo[0][0];
-		longitude = fileinfo[0][1].asFloat;
-		latitude = fileinfo[0][2].asFloat;
+		latitude = fileinfo[0][1].asFloat;
+		longitude = fileinfo[0][2].asFloat;
 		magnitude = fileinfo[0][3].asFloat;
 	}
 
@@ -128,12 +146,19 @@ EarthQuakeStationInfo{
 	var <distance;
 
 	var <waves;
+	var <waveAmplitudes;
 	var <pitchTraceFiles, <pitchTraces;
 	var <pitchTraceWaveFiles;
 
+
+	// playing one
+	var <buffer, <pitchBuffer;
+	var <waveSynth, <soundSynth;
+	var <pitchBus, <ampBus;
+
+	// playing all
 	var <buffers;
 	var <pitchBuffers;
-
 	var <waveSynths, <soundSynths;
 	var <pitchBuses, <ampBuses;
 
@@ -144,8 +169,8 @@ EarthQuakeStationInfo{
 	readLine{ |line|
 		name = line[0];
 		fileName = name.replace( " -- ", "_" ).replace( " ", "_" ).replace("*","" );
-		longitude = line[1].asFloat;
-		latitude = line[2].asFloat;
+		latitude = line[1].asFloat;
+		longitude = line[2].asFloat;
 		distance = line[3].asFloat;
 	}
 
@@ -154,11 +179,43 @@ EarthQuakeStationInfo{
 		waves = waves.sort;
 	}
 
+	analyzeAmplitudes{ |basepath|
+		var sndfile, peaks;
+		var amplitudes = waves.collect{ |it| sndfile = SoundFile.new; sndfile.openRead( it ); peaks = sndfile.channelPeaks; sndfile.close; [ PathName( it ).fileNameWithoutExtension, peaks.unbubble ] };
+		var filewriter = SemiColonFileWriter.new( basepath +/+ fileName ++ "_waveamplitudes.csv" );
+		amplitudes.do{ |it|
+			filewriter.writeLine( it );
+		};
+		filewriter.close;
+	}
+
+	readAmplitudes{ |basepath|
+		waveAmplitudes = SemiColonFileReader.read( basepath +/+ fileName ++ "_waveamplitudes.csv" );
+		waveAmplitudes = waveAmplitudes.collect{ |it| [ it[0], it[1].asFloat ] };
+	}
+
+	loadBuffer{ |server, index, basePath, replacePath|
+		var wavefilename = waves[ index ];
+		if ( wavefilename.isNil ){
+			("pitchTraceWaveFile with index"+index+"does not exist").postln;
+			waves.postln;
+			^this;
+		};
+		if ( buffer.notNil ){ this.freeBuffer };
+		if ( replacePath.notNil and: basePath.notNil ){
+			wavefilename = wavefilename.replace( basePath, replacePath );
+		};
+		buffer = Buffer.read( server, wavefilename );
+	}
+
+	freeBuffer{
+		buffer.free;
+	}
 
 	loadBuffers{ |server, basePath, replacePath|
 		var wavefilenames = waves;
 		if ( buffers.notNil ){ this.freeBuffers };
-		if ( replacePath.notNil ){
+		if ( replacePath.notNil and: basePath.notNil ){
 			wavefilenames = waves.collect{ |it| it.replace( basePath, replacePath ); };
 		};
 		buffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
@@ -195,10 +252,29 @@ EarthQuakeStationInfo{
 		}
 	}
 
+	loadPitchBuffer{ |server, index, basePath, replacePath|
+		var wavefilename = pitchTraceWaveFiles[ index ];
+		if ( wavefilename.isNil ){
+			("pitchTraceWaveFile with index"+index+"does not exist").postln;
+			pitchTraceWaveFiles.postln;
+			^this;
+		};
+		if ( pitchBuffer.notNil ){ this.freePitchBuffer };
+		if ( replacePath.notNil and: basePath.notNil ){
+			wavefilename = wavefilename.replace( basePath, replacePath );
+		};
+		pitchBuffer = Buffer.read( server, wavefilename );
+	}
+
+	freePitchBuffer{
+		pitchBuffer.free;
+	}
+
+
 	loadPitchBuffers{ |server, basePath, replacePath|
 		var wavefilenames = pitchTraceWaveFiles;
 		if ( pitchBuffers.notNil ){ this.freePitchBuffers };
-		if ( replacePath.notNil ){
+		if ( replacePath.notNil and: basePath.notNil ){
 			wavefilenames = pitchTraceWaveFiles.collect{ |it| it.replace( basePath, replacePath ); };
 		};
 		pitchBuffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
@@ -208,7 +284,23 @@ EarthQuakeStationInfo{
 		pitchBuffers.do{ |it| it.free; };
 	}
 
+	// play one
+	playOne{ |server, output, waveDef, soundDef|
+		pitchBus = Bus.control( server, 1 );
+		ampBus = Bus.control( server, 1 );
+		waveSynth = Synth.new( waveDef, [ \buf, buffer, \pitchBuf, pitchBuffer, \ampOut, ampBus, \pitchOut, pitchBus ] );
+		soundSynth = Synth.new( soundDef, [ \out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap ] )
+	}
 
+	stopOne{
+		pitchBus.free;
+		ampBus.free;
+		waveSynth.free;
+		soundSynth.free;
+	}
+
+
+	// play all wave forms
 	play{ |server, output, waveDef, soundDef|
 		var count = buffers.size;
 		pitchBuses = Bus.control( server, count );
@@ -218,6 +310,8 @@ EarthQuakeStationInfo{
 	}
 
 	stop{
+		pitchBuses.do{ |it| it.free };
+		ampBuses.do{ |it| it.free };
 		waveSynths.do{ |it| it.free };
 		soundSynths.do{ |it| it.free };
 	}

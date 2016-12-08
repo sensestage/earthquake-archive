@@ -19,6 +19,9 @@
 	it.matchWavesWithStations;
 	it.filterStations; // take out stations for which there are no waveforms
 
-	it.stationsSortedByDistance.postln;
+	// it.analyzeAmplitudes;  // processing
+	it.readAmplitudes;
+
+	// it.stationsSortedByDistance.postln;
 };
 );

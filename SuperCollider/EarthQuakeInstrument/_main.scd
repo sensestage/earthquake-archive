@@ -15,6 +15,8 @@ s.options.maxLogins = 5; // multiple logins ensures that you can connect to/from
 
 ~mypath = "".resolveRelative;
 
+~spOrder = [7,4,6,5,2,3];
+
 (~mypath +/+ "earthquakedata.scd").load;
 
 // s.boot;
@@ -25,5 +27,8 @@ s.waitForBoot({
 	(~mypath +/+ "oscdefs.scd").load;
 	s.sync;
 	(~mypath +/+ "plumbing.scd").load;
+	s.sync;
+	(~mypath +/+ "earthquake_waves.scd").load;
+
 
 });

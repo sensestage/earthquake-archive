@@ -43,7 +43,7 @@ SynthDef( \quakeSelector, { |maxTime=5|
 );
 
 (
-SynthDef( \waveplayer, { |out=0, ampOut=0, pitchOut=0, buf=0, amp=1, id=0, loop=0, t_trig=1, rate=1, pitchBuf=0|
+SynthDef( \waveplayer, { |ampOut=0, buf=0, pitchOut=0, pitchBuf=0, loop=0, t_trig=1, rate=1 |
 	var signal, amptrack, track;
 	var pitchSignal;
 	pitchSignal = PlayBuf.ar( 1, pitchBuf, BufRateScale.kr(pitchBuf)*rate, t_trig, loop: loop );
@@ -57,10 +57,14 @@ SynthDef( \waveplayer, { |out=0, ampOut=0, pitchOut=0, buf=0, amp=1, id=0, loop=
 );
 
 (
-SynthDef( \pulseenv,{ arg out=0, freq=100, rate=10, dur=0.1, amp=0.4, ampmin=0.01, ampmax=10, ampInMin=0.01, ampInMax=1, ratemin=0.5, ratemax=20, freqInMax=8,  freqOutMin=50, freqOutMax=200, freqRatio = 1;
-	var amplitude = LinExp.kr( amp.poll(1), ampInMin, ampInMax, ampmin, ampmax );
-	var impulseRate = LinExp.kr( rate.poll(1), 0.2, 8, ratemin, ratemax );
-	var frequency = LinExp.kr( freq, 0.2, freqInMax, freqOutMin, freqOutMax );
+SynthDef( \pulseenv,{ arg
+	out=0, freq=100, rate=10, amp=0.4, dur=0.1,
+	ampmin=0.01, ampmax=10, ampInMin=0.01, ampInMax=1,
+	rateInMin=0.2, rateInMax=8, ratemin=0.5, ratemax=20,
+	freqInMin=0.2, freqInMax=8, freqOutMin=50, freqOutMax=200, freqRatio = 1;
+	var amplitude = LinExp.kr( amp, ampInMin, ampInMax, ampmin, ampmax );
+	var impulseRate = LinExp.kr( rate, rateInMin, rateInMax, ratemin, ratemax );
+	var frequency = LinExp.kr( freq, freqInMin, freqInMax, freqOutMin, freqOutMax );
 	var duration = 1 / impulseRate;
 	Out.ar( out, SinOsc.ar( frequency * freqRatio, 0, amplitude*EnvGen.kr( Env.perc, Impulse.kr(impulseRate), timeScale: duration ) ).tanh *0.95 );
 }).send(s);
