@@ -150,20 +150,63 @@ EarthQuakeStationInfo{
 	var <pitchTraceFiles, <pitchTraces;
 	var <pitchTraceWaveFiles;
 
+	var <channelPlayers;
 
-	// playing one
-	var <buffer, <pitchBuffer;
-	var <waveSynth, <soundSynth;
-	var <pitchBus, <ampBus;
+	// // playing one
+	// var <buffer, <pitchBuffer;
+	// var <waveSynth, <soundSynth;
+	// var <pitchBus, <ampBus, <doneBus;
 
-	// playing all
-	var <buffers;
-	var <pitchBuffers;
-	var <waveSynths, <soundSynths;
-	var <pitchBuses, <ampBuses;
+	// // playing all
+	// var <buffers;
+	// var <pitchBuffers;
+	// var <waveSynths, <soundSynths;
+	// var <pitchBuses, <ampBuses;
 
 	*new{
-		^super.new;
+		^super.new.init;
+	}
+
+	init{
+		channelPlayers = IdentityDictionary.new;
+	}
+
+	createChannelPlayer{ |id|
+		channelPlayers.put( id, EarthQuakeChannelPlayer.new );
+	}
+
+	prepChannelPlayer{ |id, server, basePath, replacePath|
+		var wavefilename = waves[ id ];
+		if ( wavefilename.isNil ){
+			("waveFile with index"+id+"does not exist: ").postln;
+			waves.postln;
+		}{
+			if ( replacePath.notNil and: basePath.notNil ){
+				wavefilename = wavefilename.replace( basePath, replacePath );
+			};
+			channelPlayers.at( id ).loadBuffer( server, wavefilename );
+		};
+
+		wavefilename = pitchTraceWaveFiles[ id ];
+		if ( wavefilename.isNil ){
+			("pitchTraceWaveFile with index"+id+"does not exist").postln;
+			pitchTraceWaveFiles.postln;
+		}{
+			if ( replacePath.notNil and: basePath.notNil ){
+				wavefilename = wavefilename.replace( basePath, replacePath );
+			};
+			channelPlayers.at( id ).loadPitchBuffer( server, wavefilename );
+		};
+
+		channelPlayers.at( id ).allocBuses( server )
+	}
+
+	playChannelPlayer{ |id, server, output, waveDef, soundDef, waveArgs, soundArgs|
+		channelPlayers.at( id ).play( server, output, waveDef, soundDef, waveArgs, soundArgs );
+	}
+
+	stopChannelPlayer{ |id|
+		channelPlayers.at( id ).stop;
 	}
 
 	readLine{ |line|
@@ -194,36 +237,18 @@ EarthQuakeStationInfo{
 		waveAmplitudes = waveAmplitudes.collect{ |it| [ it[0], it[1].asFloat ] };
 	}
 
-	loadBuffer{ |server, index, basePath, replacePath|
-		var wavefilename = waves[ index ];
-		if ( wavefilename.isNil ){
-			("pitchTraceWaveFile with index"+index+"does not exist").postln;
-			waves.postln;
-			^this;
-		};
-		if ( buffer.notNil ){ this.freeBuffer };
-		if ( replacePath.notNil and: basePath.notNil ){
-			wavefilename = wavefilename.replace( basePath, replacePath );
-		};
-		buffer = Buffer.read( server, wavefilename );
-	}
-
-	freeBuffer{
-		buffer.free;
-	}
-
-	loadBuffers{ |server, basePath, replacePath|
-		var wavefilenames = waves;
-		if ( buffers.notNil ){ this.freeBuffers };
-		if ( replacePath.notNil and: basePath.notNil ){
-			wavefilenames = waves.collect{ |it| it.replace( basePath, replacePath ); };
-		};
-		buffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
-	}
-
-	freeBuffers {
-		buffers.do{ |it| it.free; };
-	}
+	// loadBuffers{ |server, basePath, replacePath|
+	// 	var wavefilenames = waves;
+	// 	if ( buffers.notNil ){ this.freeBuffers };
+	// 	if ( replacePath.notNil and: basePath.notNil ){
+	// 		wavefilenames = waves.collect{ |it| it.replace( basePath, replacePath ); };
+	// 	};
+	// 	buffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
+	// }
+	//
+	// freeBuffers {
+	// 	buffers.do{ |it| it.free; };
+	// }
 
 	findMatchingPitches{ |wavePitches|
 		pitchTraceFiles = wavePitches.select{ |it| it.contains( fileName ) };
@@ -252,71 +277,90 @@ EarthQuakeStationInfo{
 		}
 	}
 
-	loadPitchBuffer{ |server, index, basePath, replacePath|
-		var wavefilename = pitchTraceWaveFiles[ index ];
-		if ( wavefilename.isNil ){
-			("pitchTraceWaveFile with index"+index+"does not exist").postln;
-			pitchTraceWaveFiles.postln;
-			^this;
-		};
+	// loadPitchBuffers{ |server, basePath, replacePath|
+	// 	var wavefilenames = pitchTraceWaveFiles;
+	// 	if ( pitchBuffers.notNil ){ this.freePitchBuffers };
+	// 	if ( replacePath.notNil and: basePath.notNil ){
+	// 		wavefilenames = pitchTraceWaveFiles.collect{ |it| it.replace( basePath, replacePath ); };
+	// 	};
+	// 	pitchBuffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
+	// }
+	//
+	// freePitchBuffers {
+	// 	pitchBuffers.do{ |it| it.free; };
+	// }
+
+
+	// // play all wave forms
+	// play{ |server, output, waveDef, soundDef|
+	// 	var count = buffers.size;
+	// 	pitchBuses = Bus.control( server, count );
+	// 	ampBuses = Bus.control( server, count );
+	// 	waveSynths = buffers.collect{ |buf,i| Synth.new( waveDef, [ \buf, buf, \pitchBuf, pitchBuffers[i], \ampOut, ampBuses.index + i, \pitchOut, pitchBuses.index + i ] ) };
+	// 	soundSynths = count.collect{ |i| Synth.new( soundDef, [ \out, output, \amp, ampBuses.subBus(i).asMap, \rate, pitchBuses.subBus(i).asMap, \freq, pitchBuses.subBus(i).asMap ] ) };
+	// }
+	//
+	// stop{
+	// 	pitchBuses.do{ |it| it.free };
+	// 	ampBuses.do{ |it| it.free };
+	// 	waveSynths.do{ |it| it.free };
+	// 	soundSynths.do{ |it| it.free };
+	// }
+
+}
+
+EarthQuakeChannelPlayer {
+	var <waveBuffer, <pitchBuffer;
+	var <waveSynth, <soundSynth;
+	var <pitchBus, <ampBus, <doneBus;
+
+	*new{
+		^super.new;
+	}
+
+	loadBuffer{ |server, path|
+		if ( waveBuffer.notNil ){ this.freeBuffer };
+		waveBuffer = Buffer.read( server, path );
+	}
+
+	freeBuffer{
+		waveBuffer.free;
+	}
+
+
+	loadPitchBuffer{ |server, path|
 		if ( pitchBuffer.notNil ){ this.freePitchBuffer };
-		if ( replacePath.notNil and: basePath.notNil ){
-			wavefilename = wavefilename.replace( basePath, replacePath );
-		};
-		pitchBuffer = Buffer.read( server, wavefilename );
+		pitchBuffer = Buffer.read( server, path );
 	}
 
 	freePitchBuffer{
 		pitchBuffer.free;
 	}
 
-
-	loadPitchBuffers{ |server, basePath, replacePath|
-		var wavefilenames = pitchTraceWaveFiles;
-		if ( pitchBuffers.notNil ){ this.freePitchBuffers };
-		if ( replacePath.notNil and: basePath.notNil ){
-			wavefilenames = pitchTraceWaveFiles.collect{ |it| it.replace( basePath, replacePath ); };
-		};
-		pitchBuffers = wavefilenames.collect{ |it| Buffer.read( server, it ); };
-	}
-
-	freePitchBuffers {
-		pitchBuffers.do{ |it| it.free; };
-	}
-
-	// play one
-	playOne{ |server, output, waveDef, soundDef|
+	allocBuses{ |server|
 		pitchBus = Bus.control( server, 1 );
 		ampBus = Bus.control( server, 1 );
-		waveSynth = Synth.new( waveDef, [ \buf, buffer, \pitchBuf, pitchBuffer, \ampOut, ampBus, \pitchOut, pitchBus ] );
-		soundSynth = Synth.new( soundDef, [ \out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap ] )
+		doneBus = Bus.control( server, 1 );
 	}
 
-	stopOne{
+	freeBuses{
 		pitchBus.free;
 		ampBus.free;
-		waveSynth.free;
-		soundSynth.free;
+		doneBus.free;
 	}
 
-
-	// play all wave forms
-	play{ |server, output, waveDef, soundDef|
-		var count = buffers.size;
-		pitchBuses = Bus.control( server, count );
-		ampBuses = Bus.control( server, count );
-		waveSynths = buffers.collect{ |buf,i| Synth.new( waveDef, [ \buf, buf, \pitchBuf, pitchBuffers[i], \ampOut, ampBuses.index + i, \pitchOut, pitchBuses.index + i ] ) };
-		soundSynths = count.collect{ |i| Synth.new( soundDef, [ \out, output, \amp, ampBuses.subBus(i).asMap, \rate, pitchBuses.subBus(i).asMap, \freq, pitchBuses.subBus(i).asMap ] ) };
+	play{ |server, output, waveDef, soundDef, waveArgs, soundArgs|
+		waveSynth = Synth.new( waveDef, [ \buf, waveBuffer, \pitchBuf, pitchBuffer, \ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus ] ++ waveArgs );
+		soundSynth = Synth.new( soundDef, [ \out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap, \endGate, doneBus.asMap ] ++ soundArgs )
 	}
 
 	stop{
-		pitchBuses.do{ |it| it.free };
-		ampBuses.do{ |it| it.free };
-		waveSynths.do{ |it| it.free };
-		soundSynths.do{ |it| it.free };
+		waveSynth.free;
+		soundSynth.free;
 	}
-
 }
+
+
 
 EarthQuakePitchTrace {
 

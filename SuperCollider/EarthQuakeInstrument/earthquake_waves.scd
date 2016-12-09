@@ -1,35 +1,82 @@
-(// read buffers:
+~quakePlayers = IdentityDictionary.new;
+(// prepare channel players
 ~quakes.do{ |jt,j|
+	var nStations = jt.stationInfo.size;
+	~quakePlayers.put( j, List.new );
 	jt.stationsSortedByDistance.do{ |it,i|
-		var indexOfAmp = jt.stationInfo.at( it ).waveAmplitudes.collect{ |it| it[1] }.maxIndex;
-		// [ j, i ].postln;
-		jt.stationInfo.at( it ).loadBuffer( s, indexOfAmp );
-		jt.stationInfo.at( it ).loadPitchBuffer( s, indexOfAmp );
-	};
-}
-);
+		var sortedAmp = jt.stationInfo.at( it ).waveAmplitudes.order({arg a, b; a[1] <= b[1] });
 
-~quakes[0].dump;
+		if ( nStations == 4 ){
+			if ( i<2 ){
+			// first two of sortedAmp
+				sortedAmp.at([0,1]).do{ |k|
+					// k.postln;
+					jt.stationInfo.at( it ).createChannelPlayer( k );
+					jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+					~quakePlayers.at( j ).add(
+						jt.stationInfo.at( it ).channelPlayers.at( k );
+					);
+				}
+			}{
+				jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
+				jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+				~quakePlayers.at( j ).add(
+					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
+				);
+			};
+		};
+		if ( nStations == 5 ) {
+			if ( i==0 ){
+				// first two of sortedAmp
+				sortedAmp.at([0,1]).do{ |k|
+					// k.postln;
+					jt.stationInfo.at( it ).createChannelPlayer( k );
+					jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+					~quakePlayers.at( j ).add(
+						jt.stationInfo.at( it ).channelPlayers.at( k );
+					);
+				};
+			}{
+				jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
+				jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+				~quakePlayers.at( j ).add(
+					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
+				);
+			};
+		};
+		if ( nStations == 6 ){
+			jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
+			jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+			~quakePlayers.at( j ).add(
+				jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
+			);
+		};
+	};
+	~quakePlayers[j].postln;
+};
+);
 
 // function to play an earthquake
 (
 ~playQuake = { |qid|
-	~quakes[ qid ].stationsSortedByDistance.do{ |it,i|
-		~quakes[ qid ].stationInfo.at( it ).playOne( s, ~spOrder[i], \waveplayer, \pulseenv );
-	}
+	~quakePlayers.at( qid ).do{ |it,i| it.play( s,~spOrder[i], \waveplayer, \pulseenv ) };
 };
 );
 
 (
 ~stopQuake = { |qid|
-	~quakes[ qid ].stationInfo.do{ |it| it.stopOne };
+	~quakePlayers.at( qid ).do{ |it| it.stop };
 }
 );
 
-~lastQuake = 0;
+~lastQuake = -1;
 ~switchQuake = { |v|
 	"quake switch to ".post; v.postln;
-	~stopQuake.value( ~lastQuake );
-	~playQuake.value( v );
-	~lastQuake = v;
+	if ( ~lastQuake > -1 ){
+		~stopQuake.value( ~lastQuake );
+	};
+	if ( v > 0 ){
+		~playQuake.value( v-1 );
+	};
+	~lastQuake = v-1;
 };

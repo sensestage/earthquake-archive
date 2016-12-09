@@ -5,5 +5,4 @@
 
 // quake selection
 
-~quakeSelector = Synth.new( \quakeSelector );
-
+~quakeSelector = Synth.new( \quakeSelector, [ \maxTime, 3 ] );
