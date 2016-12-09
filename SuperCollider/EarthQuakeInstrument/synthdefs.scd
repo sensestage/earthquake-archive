@@ -24,6 +24,16 @@ SynthDef( \testSignal,{ arg freq=100, rate=10, stepRate=0.5, dur=0.1, amp=0.5, d
 }).send(s);
 );
 
+(
+SynthDef( \testSignal2,{ arg freq=100, rate=5, out=2, dur=0.1, amp=0.5, doneAction = 1, resetbus=0;
+	// var stepTrigger = Impulse.kr( stepRate );
+	//var endCount = PulseCount.kr( stepTrigger );
+	var trigger = Impulse.kr(rate);
+	var signal = SinOsc.ar( freq, 0, amp*EnvGen.kr( Env.perc, trigger, timeScale: dur ) );
+	Out.ar( out, signal );
+}).send(s);
+);
+
 /*
 (
 SynthDef( \quakeSelector, { |out|

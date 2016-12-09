@@ -27,8 +27,9 @@ s.waitForBoot({
 	s.sync;
 	(~mypath +/+ "plumbing.scd").load;
 	s.sync;
-	(~mypath +/+ "earthquake_waves.scd").load;
-	(~mypath +/+ "oscdefs.scd").load;
+	// (~mypath +/+ "earthquake_waves.scd").load; // the actual earthquake waves
+	(~mypath +/+ "test_detection.scd").load; // to test the detection of signals
 
+	(~mypath +/+ "oscdefs.scd").load;
 
 });
