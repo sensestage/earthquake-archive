@@ -7,8 +7,8 @@ s.startAliveThread;
 );
 
 m =  NetAddr("192.168.7.2", 57110);
-s.sendMsg( "/g_dumpTree", 0, 1 );
-s.sendMsg( "n_free", 1002 );
+m.sendMsg( "/g_dumpTree", 0, 1 );
+m.sendMsg( "n_free", 1002 );
 
 n =  NetAddr("192.168.7.2", 57120);
 n.sendMsg( '/changeQuake', 1002, -1, 0 );
