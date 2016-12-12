@@ -84,6 +84,17 @@ Task({ // load buffers slowly
 			])
 	};
 };
+
+/// default arguments
+/*
+		waveSynth = Synth.new( waveDef,
+			[ \buf, waveBuffer, \cutBuf, cutBuffer, \ampBuf, ampBuffer, \pitchBuf, pitchBuffer,
+				\ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus
+		] ++ waveArgs );
+		soundSynth = Synth.new( soundDef, [
+			\out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap, \endGate, doneBus.asMap
+		] ++ soundArgs )
+*/
 );
 
 (

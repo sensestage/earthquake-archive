@@ -72,6 +72,27 @@ SynthDef( \waveplayer, { |ampOut=0, buf=0, pitchOut=0, pitchBuf=0, loop=0, t_tri
 );
 
 (
+SynthDef( \waveplayerAmp, { |
+	ampOut=0, buf=0, pitchOut=0, pitchBuf=0,
+	loop=0, t_trig=1, rate=1, doneOut=0,
+	srcAmpLo=0.05, srcAmpHi=1, dstRateLo=1, dstRateHi=10,
+	ampRate=0 |
+	var ampsignal, amptrack, track;
+	var pitchSignal, pitchTrack, done;
+	var ampRateMap = LinExp.kr( 1- ampRate, srcAmpLo, srcAmpHi, dstRateLo, dstRateHi ).poll(5);
+
+	pitchSignal = PlayBuf.ar( 1, pitchBuf, BufRateScale.kr(pitchBuf)*rate*ampRateMap, t_trig, loop: loop );
+	ampSignal = PlayBuf.ar( 1, buf, BufRateScale.kr(buf)*rate*ampRateMap, t_trig, loop: loop );
+	done = Done.kr( signal );
+	track = 1 - done;
+	FreeSelf.kr( DelayN.kr( done, 3, 3 ) );
+	Out.kr( doneOut, track );
+	Out.kr( ampOut, ampSignal );
+	Out.kr( pitchOut, pitchSignal );
+}).send(s);
+);
+
+(
 SynthDef( \pulseenv,{ arg
 	out=0, freq=100, rate=10, amp=0.4, dur=1,
 	ampmin=0.01, ampmax=10, ampInMin=0.01, ampInMax=1,

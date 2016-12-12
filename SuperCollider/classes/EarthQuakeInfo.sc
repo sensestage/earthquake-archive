@@ -38,6 +38,14 @@ EarthQuake{
 		^( basePath +/+ "wav_norm/*.wav").pathMatch;
 	}
 
+	ampWaveFiles{
+		^( basePath +/+ "wav_amp/*.wav").pathMatch;
+	}
+
+	cutWaveFiles{
+		^( basePath +/+ "wav_amp/*.wav").pathMatch;
+	}
+
 	pitchFiles{
 		^( basePath +/+ "wav_pitch/*.pitch").pathMatch;
 	}
@@ -146,6 +154,8 @@ EarthQuake{
 			it.findMatchingWaves( this.normalizedWaveFiles );
 			it.findMatchingPitches( this.pitchFiles );
 			it.findMatchingPitchWaves( this.pitchWaveFiles );
+			it.findMatchingAmpWaves( this.ampWaveFiles );
+			it.findMatchingCutWaves( this.cutWaveFiles );
 		};
 	}
 
@@ -166,6 +176,8 @@ EarthQuake{
 			if ( stat.waves.size > 0 ){
 				stat.loadBuffers( server, basepath, remotepath );
 				stat.loadPitchBuffers( server, basepath, remotepath );
+				// stat.loadAmpBuffers( server, basepath, remotepath );
+				// stat.loadCutBuffers( server, basepath, remotepath );
 			};
 		};
 	}
@@ -199,6 +211,7 @@ EarthQuakeStationInfo{
 	var <distance;
 
 	var <waves;
+	var <ampWaves, <cutWaves;
 	var <waveAmplitudes;
 	var <pitchTraceFiles, <pitchTraces;
 	var <pitchTraceWaveFiles;
@@ -251,6 +264,29 @@ EarthQuakeStationInfo{
 			channelPlayers.at( id ).loadPitchBuffer( server, wavefilename );
 		};
 
+		wavefilename = ampWaves[ id ];
+		if ( wavefilename.isNil ){
+			("ampWave with index"+id+"does not exist").postln;
+			ampWaves.postln;
+		}{
+			if ( replacePath.notNil and: basePath.notNil ){
+				wavefilename = wavefilename.replace( basePath, replacePath );
+			};
+			channelPlayers.at( id ).loadAmpBuffer( server, wavefilename );
+		};
+
+		wavefilename = ampWaves[ id ];
+		if ( wavefilename.isNil ){
+			("cutWave with index"+id+"does not exist").postln;
+			cutWaves.postln;
+		}{
+			if ( replacePath.notNil and: basePath.notNil ){
+				wavefilename = wavefilename.replace( basePath, replacePath );
+			};
+			channelPlayers.at( id ).loadCutBuffer( server, wavefilename );
+		};
+
+
 		channelPlayers.at( id ).allocBuses( server )
 	}
 
@@ -273,6 +309,16 @@ EarthQuakeStationInfo{
 	findMatchingWaves{ |waveFiles|
 		waves = waveFiles.select{ |it| it.contains( fileName ) };
 		waves = waves.sort;
+	}
+
+	findMatchingAmpWaves{ |waveFiles|
+		ampWaves = waveFiles.select{ |it| it.contains( fileName ) };
+		ampWaves = ampWaves.sort;
+	}
+
+	findMatchingCutWaves{ |waveFiles|
+		cutWaves = waveFiles.select{ |it| it.contains( fileName ) };
+		cutWaves = cutWaves.sort;
 	}
 
 	analyzeAmplitudes{ |basepath|
@@ -363,7 +409,7 @@ EarthQuakeStationInfo{
 }
 
 EarthQuakeChannelPlayer {
-	var <waveBuffer, <pitchBuffer;
+	var <waveBuffer, <ampBuffer, <cutBuffer, <pitchBuffer;
 	var <waveSynth, <soundSynth;
 	var <pitchBus, <ampBus, <doneBus;
 
@@ -380,6 +426,25 @@ EarthQuakeChannelPlayer {
 
 	freeBuffer{
 		waveBuffer.free;
+	}
+
+
+	loadAmpBuffer{ |server, path|
+		if ( ampBuffer.notNil ){ this.freeAmpBuffer };
+		ampBuffer = Buffer.read( server, path );
+	}
+
+	freeAmpBuffer{
+		ampBuffer.free;
+	}
+
+	loadCutBuffer{ |server, path|
+		if ( cutBuffer.notNil ){ this.freeCutBuffer };
+		cutBuffer = Buffer.read( server, path );
+	}
+
+	freeCutBuffer{
+		cutBuffer.free;
 	}
 
 
@@ -405,8 +470,13 @@ EarthQuakeChannelPlayer {
 	}
 
 	play{ |server, output, waveDef, soundDef, waveArgs, soundArgs|
-		waveSynth = Synth.new( waveDef, [ \buf, waveBuffer, \pitchBuf, pitchBuffer, \ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus ] ++ waveArgs );
-		soundSynth = Synth.new( soundDef, [ \out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap, \endGate, doneBus.asMap ] ++ soundArgs )
+		waveSynth = Synth.new( waveDef,
+			[ \buf, waveBuffer, \cutBuf, cutBuffer, \ampBuf, ampBuffer, \pitchBuf, pitchBuffer,
+				\ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus
+		] ++ waveArgs );
+		soundSynth = Synth.new( soundDef, [
+			\out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap, \endGate, doneBus.asMap
+		] ++ soundArgs )
 	}
 
 	stop{
