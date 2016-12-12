@@ -8,13 +8,40 @@ s.clientID = 1;
 s.startAliveThread;
 );
 
+
+SynthDef('sin', {arg st_hz=50, end_hz=1000, dur=1, outch=2, amp=1.0;
+	var sig;
+	sig = SinOsc.ar(EnvGen.ar(Env.linen(0.01, 1, 2, curve: -4), timeScale: dur, doneAction: 2).range(st_hz, end_hz));
+	Out.ar(outch, sig * amp);
+}).send(s);
+
+(
+{
+	Synth('sin', ['st_hz', 40, 'end_hz', 80, 'dur', 1.1, 'outch', 2]); // belly left
+	0.5.yield;
+	Synth('sin', ['st_hz', 40, 'end_hz', 30, 'dur', 2.1, 'outch', 3]); // belly right
+	0.5.yield;
+	Synth('sin', ['st_hz', 40, 'end_hz', 70, 'dur', 0.1, 'outch', 4]); // neck
+	0.5.yield;
+	Synth('sin', ['st_hz', 40, 'end_hz', 60, 'dur', 0.1, 'outch', 5]); // collar left
+	0.5.yield;
+	Synth('sin', ['st_hz', 40, 'end_hz', 50, 'dur', 0.1, 'outch', 6]); // collar right
+	0.5.yield;
+	Synth('sin', ['st_hz', 40, 'end_hz', 40, 'dur', 0.1, 'outch', 7]); // sternum
+}.fork;
+);
+
+
+
+
 // load other files from _main.scd
 
 // Make sure to set these appropriately so that both the Bela & the local machine can load the test data
-~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
+~basefilepath = "../../Python/Test-Data/".resolveRelative;
 ~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";
 
-
+// This creates all the buffers and synths needed to play back the channels. And deals with the problem when
+// there are not 6 stations for a given earthquake (in which case, multiple channels per stations are used)
 ~quakePlayers = IdentityDictionary.new;
 (// prepare channel players
 Task({
