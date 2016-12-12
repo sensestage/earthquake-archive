@@ -358,6 +358,11 @@ EarthQuakeChannelPlayer {
 		waveSynth.free;
 		soundSynth.free;
 	}
+
+	release{ |releaseTime|
+		waveSynth.release( releaseTime );
+		soundSynth.release( releaseTime );
+	}
 }
 
 

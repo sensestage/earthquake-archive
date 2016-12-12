@@ -1,10 +1,13 @@
-(
+( // remote belaserver
 Server.default = s = Server("belaServer", NetAddr("192.168.7.2", 57110));
 //s.initTree;
 s.options.maxLogins = 5;
 s.clientID = 1;
 s.startAliveThread;
 );
+
+// load other files from _main.scd
+
 
 ~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
 ~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";

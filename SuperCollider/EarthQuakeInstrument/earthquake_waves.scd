@@ -69,7 +69,8 @@ Task({ // load buffers slowly
 	~quakePlayers.at( qid ).do{ |it,i|
 		var outChannel = ~spOrders[qid][i];
 		it.play( s, outChannel, \waveplayer, \pulseenv,
-			[\rate, 5, \attack, 0.05, \release, 0.2],
+			[\rate, 5, \attack, 0.05, \release, 0.2], // arguments for waveplayer
+			// arguments for sound synthesis:
 			[  \ampmin, 0.1, \ampmax, 1, \ampInMin, 0.00025, \ampInMax, 0.2,
 				\freqOutMin, 75, \freqOutMax, 200,
 				\ratemin, 1, \ratemax, 40,
