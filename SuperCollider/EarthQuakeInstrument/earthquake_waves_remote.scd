@@ -1,3 +1,5 @@
+// This file replicates the functionality of _main.scd for controlling the Bela SC server remotely.
+
 ( // remote belaserver
 Server.default = s = Server("belaServer", NetAddr("192.168.7.2", 57110));
 //s.initTree;
@@ -9,6 +11,7 @@ s.startAliveThread;
 // load other files from _main.scd
 // use the below instead of earthquake_waves.scd
 
+// Make sure to set these appropriately so that both the Bela & the local machine can load the test data
 ~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
 ~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";
 

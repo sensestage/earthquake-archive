@@ -1,11 +1,13 @@
 s = Server.default;
 
+// Configuring the Bela to enable these channels as analog ins and outs.
 s.options.numAnalogInChannels = 8;
 s.options.numAnalogOutChannels = 8;
 s.options.numDigitalChannels = 16;
 s.options.dacLevel = 0;
 s.options.blockSize = 16;
 
+// Configuring SuperCollider to detect INs and OUTs
 s.options.numInputBusChannels = 2;
 s.options.numOutputBusChannels = 10;
 
