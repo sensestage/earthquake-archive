@@ -9,27 +9,114 @@ s.startAliveThread;
 );
 
 
+/*
+Channels
+2 - belly left
+3 - belly right
+4 - neck
+5 - collar left
+6 - collar right
+7 - sternum
+
+
+*/
+
 SynthDef('sin', {arg st_hz=50, end_hz=1000, dur=1, outch=2, amp=1.0;
-	var sig;
-	sig = SinOsc.ar(EnvGen.ar(Env.linen(0.01, 1, 2, curve: -4), timeScale: dur, doneAction: 2).range(st_hz, end_hz));
-	Out.ar(outch, sig * amp);
+	var sig, env;
+	sig = SinOsc.ar(Line.ar(st_hz, end_hz, dur));
+	env = EnvGen.ar(Env.perc(0.01, 1), timeScale: dur, doneAction: 2);
+	Out.ar(outch, sig * env * amp);
 }).send(s);
 
 (
-{
-	Synth('sin', ['st_hz', 40, 'end_hz', 80, 'dur', 1.1, 'outch', 2]); // belly left
-	0.5.yield;
-	Synth('sin', ['st_hz', 40, 'end_hz', 30, 'dur', 2.1, 'outch', 3]); // belly right
-	0.5.yield;
-	Synth('sin', ['st_hz', 40, 'end_hz', 70, 'dur', 0.1, 'outch', 4]); // neck
-	0.5.yield;
-	Synth('sin', ['st_hz', 40, 'end_hz', 60, 'dur', 0.1, 'outch', 5]); // collar left
-	0.5.yield;
-	Synth('sin', ['st_hz', 40, 'end_hz', 50, 'dur', 0.1, 'outch', 6]); // collar right
-	0.5.yield;
-	Synth('sin', ['st_hz', 40, 'end_hz', 40, 'dur', 0.1, 'outch', 7]); // sternum
+~gest = [
+	['delta', 0.1, 'st_hz', 100, 'end_hz', 80, 'dur', 0.4, 'outch', 2],
+	['delta', 0.1, 'st_hz', 100, 'end_hz', 80, 'dur', 0.4, 'outch', 3],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 90, 'dur', 1.3, 'outch', 4],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 90, 'dur', 0.5, 'outch', 5],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 80, 'dur', 0.5, 'outch', 6],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 100, 'dur', 0.6, 'outch', 7],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 90, 'dur', 0.5, 'outch', 5],
+	['delta', 0.01, 'st_hz', 60, 'end_hz', 80, 'dur', 0.5, 'outch', 6],
+	['delta', 0.1, 'st_hz', 60, 'end_hz', 90, 'dur', 1.5, 'outch', 5],
+	['delta', 0.01, 'st_hz', 60, 'end_hz', 80, 'dur', 1.5, 'outch', 6],
+];
+
+~sin = {
+	var step;
+	~gest.do {arg vals, i;
+		Synth('sin', vals);
+		vals[1].yield;
+	};
 }.fork;
 );
+
+
+
+
+// Using a more flexible frequency & amplitude modulated sinewave
+SynthDef('sinmod', {arg atk=0.01, rel=1.0, lfo_hz_st=1, lfo_hz_end=10, mod_hz_st=50, mod_hz_end=1000, low_hz=50, hi_hz=1000,
+	dur=1, outch=2, amp=1.0;
+	var sig, env, fmod, lfo;
+	fmod = SinOsc.ar(Line.ar(mod_hz_st, mod_hz_end, dur)).range(low_hz, hi_hz);
+	lfo = SinOsc.ar(Line.ar(lfo_hz_st, lfo_hz_end, dur));
+	sig = SinOsc.ar(fmod) * lfo;
+	env = EnvGen.ar(Env.linen(atk, 1, rel, curve: -4), timeScale: dur, doneAction: 2);
+	Out.ar(outch, sig * env * amp);
+}).send(s);
+
+
+(
+~gest = [
+	['delta', 0.1, 'lfo_hz_st', 100, 'lfo_hz_end', 2, 'atk', 0.1, 'mod_hz_st', 1, 'mod_hz_end', 20, 'low_hz', 60,'hi_hz', 100,'dur', 1.4, 'outch', 2],
+	['delta', 0.1, 'atk', 0.2, 'rel', 2.0, 'mod_hz_st', 10, 'mod_hz_end', 4, 'low_hz', 50,'hi_hz', 100,'dur', 2.4, 'outch', 3],
+	['delta', 0.1, 'mod_hz_st', 2, 'mod_hz_end', 38, 'low_hz', 50,'hi_hz', 90,'dur', 0.5, 'outch', 5],
+	['delta', 0.1, 'mod_hz_st', 10, 'mod_hz_end', 3, 'low_hz', 50,'hi_hz', 100,'dur', 0.5, 'outch', 7],
+	['delta', 0.1, 'mod_hz_st', 1, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 80,'dur', 0.5, 'outch', 6],
+	['delta', 0.1, 'lfo_hz_st', 0.3, 'rel', 0.1, 'mod_hz_st', 1, 'mod_hz_end', 20, 'low_hz', 30,'hi_hz', 100,'dur', 4.4, 'outch', 4],
+];
+
+
+~sin = {
+	var step;
+	~gest.do {arg vals, i;
+		Synth('sinmod', vals);
+		vals[1].yield;
+	};
+}.fork;
+);
+
+
+
+
+
+(
+~pat = [
+	['delta', 0.1, 'atk', 0.1, 'mod_hz_st', 10, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 100,'dur', 1.4, 'outch', 2],
+	['delta', 0.1, 'atk', 0.2, 'rel', 2.0, 'mod_hz_st', 10, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 100,'dur', 2.4, 'outch', 3],
+	['delta', 0.1, 'mod_hz_st', 3, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 90,'dur', 0.5, 'outch', 5],
+	['delta', 0.1, 'mod_hz_st', 1, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 100,'dur', 0.5, 'outch', 7],
+	['delta', 0.1, 'mod_hz_st', 1, 'mod_hz_end', 8, 'low_hz', 50,'hi_hz', 80,'dur', 0.5, 'outch', 6],
+	['delta', 0.1, 'rel', 0.1, 'mod_hz_st', 10, 'mod_hz_end', 2, 'low_hz', 50,'hi_hz', 100,'dur', 2.4, 'outch', 4],
+];
+
+
+~sin = {
+	var step;
+	~pat.do {arg vals, i;
+		Synth('sinmod', vals);
+		vals[1].yield;
+	};
+}.fork;
+);
+
+
+
+
+
+
+
+
 
 
 
