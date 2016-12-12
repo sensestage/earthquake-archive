@@ -1,6 +1,18 @@
+(
+Server.default = s = Server("belaServer", NetAddr("192.168.7.2", 57110));
+//s.initTree;
+s.options.maxLogins = 5;
+s.clientID = 1;
+s.startAliveThread;
+);
+
+~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
+~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";
+
+
 ~quakePlayers = IdentityDictionary.new;
 (// prepare channel players
-Task({ // load buffers slowly
+Task({
 	~quakes.do{ |jt,j|
 		var nStations = jt.stationInfo.size;
 		~quakePlayers.put( j, List.new );
@@ -13,15 +25,15 @@ Task({ // load buffers slowly
 					sortedAmp.at([0,1]).do{ |k|
 						// k.postln;
 						jt.stationInfo.at( it ).createChannelPlayer( k );
-						jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+						jt.stationInfo.at( it ).prepChannelPlayer( k, s, ~basefilepath, ~basefilepathRemote ); // basepath, remotepath
 						~quakePlayers.at( j ).add(
 							jt.stationInfo.at( it ).channelPlayers.at( k );
 						);
 						0.1.wait;
-					}
+					};
 				}{
 					jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
-					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s,  ~basefilepath, ~basefilepathRemote ); // basepath, remotepath
 					~quakePlayers.at( j ).add(
 						jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 					);
@@ -34,7 +46,7 @@ Task({ // load buffers slowly
 					sortedAmp.at([0,1]).do{ |k|
 						// k.postln;
 						jt.stationInfo.at( it ).createChannelPlayer( k );
-						jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+						jt.stationInfo.at( it ).prepChannelPlayer( k, s,  ~basefilepath, ~basefilepathRemote ); // basepath, remotepath
 						~quakePlayers.at( j ).add(
 							jt.stationInfo.at( it ).channelPlayers.at( k );
 						);
@@ -42,7 +54,7 @@ Task({ // load buffers slowly
 					};
 				}{
 					jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
-					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s,  ~basefilepath, ~basefilepathRemote ); // basepath, remotepath
 					~quakePlayers.at( j ).add(
 						jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 					);
@@ -51,7 +63,7 @@ Task({ // load buffers slowly
 			};
 			if ( nStations == 6 ){
 				jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
-				jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+				jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s,  ~basefilepath, ~basefilepathRemote ); // basepath, remotepath
 				~quakePlayers.at( j ).add(
 					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 				);
@@ -66,16 +78,7 @@ Task({ // load buffers slowly
 // function to play an earthquake
 (
 ~playQuake = { |qid|
-	~quakePlayers.at( qid ).do{ |it,i|
-		var outChannel = ~spOrders[qid][i];
-		it.play( s, outChannel, \waveplayer, \pulseenv,
-			[\rate, 5, \attack, 0.05, \release, 0.2],
-			[  \ampmin, 0.1, \ampmax, 1, \ampInMin, 0.00025, \ampInMax, 0.2,
-				\freqOutMin, 75, \freqOutMax, 200,
-				\ratemin, 1, \ratemax, 40,
-				\spAmp, ~spAmps[outChannel-2] // scale amplitude per speaker
-			])
-	};
+	~quakePlayers.at( qid ).do{ |it,i| it.play( s,~spOrder[i], \waveplayer, \pulseenv ) };
 };
 );
 
@@ -88,20 +91,13 @@ Task({ // load buffers slowly
 (
 ~lastQuake = -1;
 ~switchQuake = { |v|
-	// TODO: quake has to be different than previous one
 	"quake switch to ".post; v.postln;
-	if ( ~lastQuake != ( v-1 ) ){
-		if ( ~lastQuake > -1 ){
-			~stopQuake.value( ~lastQuake );
-		};
-		if ( v > 0 ){
-			~playQuake.value( v-1 );
-		};
-		~lastQuake = v-1;
-	}{
-		("quake" + v + "was already playing").postln;
-	}
+	if ( ~lastQuake > -1 ){
+		~stopQuake.value( ~lastQuake );
+	};
+	if ( v > 0 ){
+		~playQuake.value( v-1 );
+	};
+	~lastQuake = v-1;
 };
 );
-
-// ~switchQuake.value(3)

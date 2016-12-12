@@ -1,5 +1,9 @@
-// epicenter in a different place for each earthquake
-// tweak DAC parameter
+// better mapping of the amplitude
+// basic amplitude mapping per speaker
+// come up with a way to change rate of playback based on amplitude
+//+ epicenter in a different place for each earthquake
+//+ don't restart quake when it was already playing
+//+ tweak DAC parameter - not possible, already at max
 
 
 ~switchQuake.value(0);

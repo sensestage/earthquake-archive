@@ -77,12 +77,38 @@ SynthDef( \pulseenv,{ arg
 	ampmin=0.01, ampmax=10, ampInMin=0.01, ampInMax=1,
 	rateInMin=0.2, rateInMax=8, ratemin=0.5, ratemax=20,
 	freqInMin=0.2, freqInMax=8, freqOutMin=50, freqOutMax=200, freqRatio = 1,
-	endGate=1;
+	endGate=1, spAmp=1;
 	var amplitude = LinExp.kr( amp, ampInMin, ampInMax, ampmin, ampmax );
 	var impulseRate = LinExp.kr( rate, rateInMin, rateInMax, ratemin, ratemax );
 	var frequency = LinExp.kr( freq, freqInMin, freqInMax, freqOutMin, freqOutMax );
 	var duration = dur / impulseRate;
-	Out.ar( out, SinOsc.ar( frequency * freqRatio, 0, amplitude*EnvGen.kr( Env.perc, Impulse.kr(impulseRate), timeScale: duration ) ).tanh *0.95 * EnvGen.kr( Env.cutoff(1), endGate, doneAction: 2 ) );
+	Out.ar( out,
+		(
+			SinOsc.ar( frequency * freqRatio) *
+			amplitude * EnvGen.kr( Env.perc, Impulse.kr(impulseRate), timeScale: duration )
+			* spAmp
+		).tanh * 0.95 * EnvGen.kr( Env.cutoff(1), endGate, doneAction: 2 )
+	);
 }).send(s);
 );
 
+(
+SynthDef( \pulseenv2,{ arg
+	out=0, freq=100, rate=10, amp=0.4, dur=1,
+	ampmin=0.01, ampmax=10, ampInMin=0.01, ampInMax=1,
+	rateInMin=0.2, rateInMax=8, ratemin=0.5, ratemax=20,
+	freqInMin=0.2, freqInMax=8, freqOutMin=50, freqOutMax=200, freqRatio = 1,
+	endGate=1, spAmp=1;
+	var amplitude = LinExp.kr( amp, ampInMin, ampInMax, ampmin, ampmax );
+	var impulseRate = LinExp.kr( rate, rateInMin, rateInMax, ratemin, ratemax );
+	var frequency = LinExp.kr( freq, freqInMin, freqInMax, freqOutMin, freqOutMax );
+	var duration = dur / impulseRate;
+	Out.ar( out,
+		(
+			SinOsc.ar( frequency * freqRatio) *
+			amplitude * EnvGen.kr( Env.perc, Impulse.kr(impulseRate), timeScale: duration )
+			* spAmp
+		).tanh * 0.95 * EnvGen.kr( Env.cutoff(1), endGate, doneAction: 2 )
+	);
+}).send(s);
+);

@@ -15,8 +15,28 @@ s.options.maxLogins = 5; // multiple logins ensures that you can connect to/from
 
 ~mypath = "".resolveRelative;
 
-~spOrder = [7,4,6,5,2,3];
-~spOrder = [6,5,7,4,2,3];
+// ~spOrder = [7,4, 6,5, 2,3];
+
+~spAmps = [ 1,1, 1,1, 1,1 ]; // adjust here for different amplitudes
+
+(
+~spOrders = [
+	[7,4, 6,5, 2,3],
+	[4,7, 5,6, 2,3],
+	[6,5, 4,7, 2,3],
+	[5,6, 7,4, 2,3],
+
+	[2,3, 6,5, 7,4],
+	[3,2, 5,6, 7,4],
+	[2,3, 4,7, 6,5],
+	[3,2, 7,4, 6,5],
+
+	[6,7, 5,4, 2,3],
+	[5,7, 6,4, 2,3],
+	[6,2, 5,7, 4,3],
+	[5,3, 7,6, 4,2]
+];
+);
 
 (~mypath +/+ "earthquakedata.scd").load;
 

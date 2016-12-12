@@ -15,7 +15,7 @@
 	it.normalizedWaveFiles;
 	// it.analyzePitchWaves;  // processing
 
-	it.matchWavesWithStations;
+	// it.matchWavesWithStations;
 	// it.readAllPitchTraces; // only needed for processing
 	// it.writePitchTraces;   // processing
 	it.matchWavesWithStations;
