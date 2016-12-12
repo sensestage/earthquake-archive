@@ -18,16 +18,18 @@
 	it.waveFiles;
 	// it.normalizeWaves;     // processing
 	it.normalizedWaveFiles;
-	it.analyzePitchWaves;  // processing
+	// it.analyzePitchWaves;  // processing
 
-	it.matchWavesWithStations;
-	it.readAllPitchTraces; // only needed for processing
-	it.writePitchTraces;   // processing
+	// it.matchWavesWithStations;
+	// it.readAllPitchTraces; // only needed for processing
+	// it.writePitchTraces;   // processing
 
 	it.matchWavesWithStations;
 	it.filterStations; // take out stations for which there are no waveforms
 
-	it.analyzeAmplitudes;  // processing
+	it.writeAmplitudeTracesAndCut;
+
+	// it.analyzeAmplitudes;  // processing
 	it.readAmplitudes;
 
 	it.stationsSortedByDistance.postln;

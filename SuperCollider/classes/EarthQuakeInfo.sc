@@ -57,6 +57,59 @@ EarthQuake{
 		};
 	}
 
+	writeAmplitudeTracesAndCut{ |threshold=0.00001|
+		var waves;
+		if ( File.exists( basePath +/+ "wav_amp" ) or: File.exists( basePath +/+ "wav_cut" ) ){
+			("Folder for amplitude waves already exists!" + basePath +/+ "wav_amp" ).warn;
+			("Folder for cut waves already exists!" + basePath +/+ "wav_cut" ).warn;
+		}{
+			File.mkdir( basePath +/+ "wav_cut" );
+			File.mkdir( basePath +/+ "wav_amp" );
+			waves = this.normalizedWaveFiles;
+			waves.do{ |it|
+				this.processWaveFileAmpCut( it, basePath, threshold );
+			}
+		};
+	}
+
+	processWaveFileAmpCut{ |path, basePath, threshold|
+		var inSndfile = SoundFile.new;
+		var outSndfile1 = SoundFile.new;
+		var outSndfile2 = SoundFile.new;
+		var srate, indata;
+		var ampval, ampdata, cutdata;
+		var ampFile = path.replace( basePath +/+ "wav_norm", basePath +/+ "wav_amp" );
+		var cutFile = path.replace( basePath +/+ "wav_norm", basePath +/+ "wav_cut" );
+
+		// read in data:
+		inSndfile.openRead( path );
+		srate = inSndfile.sampleRate;
+		indata = FloatArray.fill( inSndfile.numFrames, 0 );
+		inSndfile.readData( indata );
+		inSndfile.close;
+
+		// do amplitude check, and cut out the data
+		cutdata = [];
+		ampval = 0;
+		ampdata = indata.collect{ |it|
+			ampval = (ampval*0.995)+(it.pow(2)*0.005);
+			if ( ampval > threshold ){
+				cutdata = cutdata ++ it;
+			};
+			ampval;
+		}.collect{ |it| it.sqrt * 4 };
+
+		outSndfile1 = SoundFile.new().headerFormat_( "WAV" ).sampleFormat_( "float" ).numChannels_(1).sampleRate_( srate ) ;
+		outSndfile1.openWrite( ampFile );
+		outSndfile1.writeData( ampdata.as(FloatArray));
+		outSndfile1.close;
+
+		outSndfile2 = SoundFile.new().headerFormat_( "WAV" ).sampleFormat_( "float" ).numChannels_(1).sampleRate_( srate ) ;
+		outSndfile2.openWrite( cutFile );
+		outSndfile2.writeData( cutdata.as(FloatArray));
+		outSndfile2.close;
+	}
+
 	analyzePitchWaves{
 		var wavepath, waves;
 		if ( File.exists( basePath +/+ "wav_pitch" ) ){
@@ -313,6 +366,8 @@ EarthQuakeChannelPlayer {
 	var <waveBuffer, <pitchBuffer;
 	var <waveSynth, <soundSynth;
 	var <pitchBus, <ampBus, <doneBus;
+
+	var <>maxAmp = 1.0;
 
 	*new{
 		^super.new;
