@@ -14,6 +14,7 @@ Task({ // load buffers slowly
 						// k.postln;
 						jt.stationInfo.at( it ).createChannelPlayer( k );
 						jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+						jt.stationInfo.at( it ).channelPlayers.at( k ).maxAmp_( jt.stationInfo.at( it ).waveAmplitudes[k][1] );
 						~quakePlayers.at( j ).add(
 							jt.stationInfo.at( it ).channelPlayers.at( k );
 						);
@@ -22,6 +23,8 @@ Task({ // load buffers slowly
 				}{
 					jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
 					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first ).maxAmp_( jt.stationInfo.at( it ).waveAmplitudes[sortedAmp.first][1] );
+
 					~quakePlayers.at( j ).add(
 						jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 					);
@@ -35,6 +38,7 @@ Task({ // load buffers slowly
 						// k.postln;
 						jt.stationInfo.at( it ).createChannelPlayer( k );
 						jt.stationInfo.at( it ).prepChannelPlayer( k, s ); // basepath, remotepath
+						jt.stationInfo.at( it ).channelPlayers.at( k ).maxAmp_( jt.stationInfo.at( it ).waveAmplitudes[k][1] );
 						~quakePlayers.at( j ).add(
 							jt.stationInfo.at( it ).channelPlayers.at( k );
 						);
@@ -43,6 +47,7 @@ Task({ // load buffers slowly
 				}{
 					jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
 					jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first ).maxAmp_( jt.stationInfo.at( it ).waveAmplitudes[ sortedAmp.first ][1] );
 					~quakePlayers.at( j ).add(
 						jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 					);
@@ -52,6 +57,7 @@ Task({ // load buffers slowly
 			if ( nStations == 6 ){
 				jt.stationInfo.at( it ).createChannelPlayer( sortedAmp.first );
 				jt.stationInfo.at( it ).prepChannelPlayer( sortedAmp.first, s ); // basepath, remotepath
+				jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first ).maxAmp_( jt.stationInfo.at( it ).waveAmplitudes[ sortedAmp.first ][1] );
 				~quakePlayers.at( j ).add(
 					jt.stationInfo.at( it ).channelPlayers.at( sortedAmp.first );
 				);
