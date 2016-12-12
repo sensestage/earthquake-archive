@@ -15,8 +15,6 @@ s.options.maxLogins = 5; // multiple logins ensures that you can connect to/from
 
 // s.options.postln;
 
-~mypath = "".resolveRelative;
-
 // ~spOrder = [7,4, 6,5, 2,3];
 
 ~spAmps = [ 1,1, 1,1, 1,1 ]; // adjust here for different amplitudes
@@ -40,6 +38,7 @@ s.options.maxLogins = 5; // multiple logins ensures that you can connect to/from
 ];
 );
 
+~mypath = "".resolveRelative;
 (~mypath +/+ "earthquakedata.scd").load;
 
 // s.boot;

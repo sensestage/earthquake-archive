@@ -475,7 +475,9 @@ EarthQuakeChannelPlayer {
 				\ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus
 		] ++ waveArgs );
 		soundSynth = Synth.new( soundDef, [
-			\out, output, \amp, ampBus.asMap, \rate, pitchBus.asMap, \freq, pitchBus.asMap, \endGate, doneBus.asMap
+			\out, output,
+			\amp, ampBus.asMap, \pitch, pitchBus.asMap,
+			\endGate, doneBus.asMap, \cutBuf, cutBuffer
 		] ++ soundArgs )
 	}
 
