@@ -7,7 +7,7 @@ s.startAliveThread;
 );
 
 // load other files from _main.scd
-
+// use the below instead of earthquake_waves.scd
 
 ~basefilepath = "/home/nescivi/git/projects/earthquakes/earthquake-archive/Python/Test-Data/";
 ~basefilepathRemote = "/root/earthquakes/Python/Test-Data/";
