@@ -69,41 +69,6 @@ Task({ // load buffers slowly
 }).play;
 );
 
-// function to play an earthquake
-(
-~playQuake = { |qid|
-	~quakePlayers.at( qid ).do{ |it,i|
-		var outChannel = ~spOrders[qid][i];
-		it.play( s, outChannel,
-			\waveplayer,
-			\pulseenv,
-			[
-				\rate, 5, \attack, 0.05, \release, 0.2
-			], // arguments for waveplayer
-			// arguments for sound synthesis:
-			[
-				\ampmin, 0.1, \ampmax, 1, \ampInMin, 0.00025, \ampInMax, 0.2,
-				\freqOutMin, 75, \freqOutMax, 200,
-				\ratemin, 1, \ratemax, 40,
-				\spAmp, ~spAmps[outChannel-2] // scale amplitude per speaker
-			])
-	};
-};
-
-/// default arguments
-/*
-		waveSynth = Synth.new( waveDef,
-			[ \buf, waveBuffer, \cutBuf, cutBuffer, \ampBuf, ampBuffer, \pitchBuf, pitchBuffer,
-				\ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus
-		] ++ waveArgs );
-		soundSynth = Synth.new( soundDef, [
-			\out, output,
-			\amp, ampBus.asMap, \pitch, pitchBus.asMap,
-			\endGate, doneBus.asMap, \cutBuf, cutBuffer
-		] ++ soundArgs )
-*/
-);
-
 (
 ~stopQuake = { |qid|
 	~quakePlayers.at( qid ).do{ |it| it.stop };
@@ -128,5 +93,40 @@ Task({ // load buffers slowly
 	}
 };
 );
+
+// function to play an earthquake
+(
+~playQuake = { |qid|
+	~quakePlayers.at( qid ).do{ |it,i|
+		var outChannel = ~spOrders[qid][i];
+		it.play( s, outChannel,
+			\waveplayer,
+			\sinemod,
+			[
+				\rate, 5, \attack, 0.05, \release, 0.2
+			], // arguments for waveplayer
+			// arguments for sound synthesis:
+			[
+				\ampInMin, 0.1, \ampInMax, 1, \ampInMin, 0.00025, \ampInMax, 0.2,
+				\spAmp, ~spAmps[outChannel-2] // scale amplitude per speaker
+			] ++ ~parametersPerSpeaker.at( outChannel )
+		)
+	};
+};
+
+/// default arguments
+/*
+		waveSynth = Synth.new( waveDef,
+			[ \buf, waveBuffer, \cutBuf, cutBuffer, \ampBuf, ampBuffer, \pitchBuf, pitchBuffer,
+				\ampOut, ampBus, \pitchOut, pitchBus, \doneOut, doneBus
+		] ++ waveArgs );
+		soundSynth = Synth.new( soundDef, [
+			\out, output,
+			\amp, ampBus.asMap, \pitch, pitchBus.asMap,
+			\endGate, doneBus.asMap, \cutBuf, cutBuffer
+		] ++ soundArgs )
+*/
+);
+
 
 // ~switchQuake.value(3)

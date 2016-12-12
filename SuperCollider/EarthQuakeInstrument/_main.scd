@@ -50,6 +50,7 @@ s.waitForBoot({
 	(~mypath +/+ "plumbing.scd").load;
 	s.sync;
 	(~mypath +/+ "earthquake_waves.scd").load; // the actual earthquake waves
+	(~mypath +/+ "parameter_mapping.scd").load;
 	// (~mypath +/+ "test_detection.scd").load; // to test the detection of signals
 	5.0.wait;
 	(~mypath +/+ "oscdefs.scd").load;
