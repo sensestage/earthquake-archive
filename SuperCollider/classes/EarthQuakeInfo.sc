@@ -80,12 +80,12 @@ EarthQuake{
 	}
 
 	writePitchTraces{ |filterMax=150|
-		if ( File.exists( basePath +/+ "wav_pitchtrace" ) ){
+		/*if ( File.exists( basePath +/+ "wav_pitchtrace" ) ){
 			("Folder for wave files of pitch traces already exists!" + basePath +/+ "wav_pitchtrace" ).warn;
-		}{
+		}{*/
 			File.mkdir( basePath +/+ "wav_pitchtrace" );
 			stationInfo.do{ |it| it.writePitchTraceWaves( basePath, filterMax ) };
-		}
+	// }
 	}
 
 	matchWavesWithStations{
