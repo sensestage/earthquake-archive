@@ -100,7 +100,7 @@ do
 # To add the project to your bela
 from `/root/Bela/projects`:
 
-    ln -s /root/earthquakes/SuperCollider/EarthQuakeInstrument/
+    ln -s /root/earthquake/SuperCollider/EarthQuakeInstrument/
 
 *You may also need to add the symlink for the SC class*
 *so add to /usr/local/share - this works*
